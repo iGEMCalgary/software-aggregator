@@ -91,16 +91,16 @@ class View(object):
         }
         QLineEdit {
             background: rgb(4, 15, 15);
-            color: rgb(255, 255, 255);
             border: none;
+            color: rgb(255, 255, 255);
         }
         Line {
             background-color: rgb(255, 255, 255);
         }
         QListWidget {
             background: rgb(4, 15, 15);
-            color: rgb(255, 255, 255);
             border: none;
+            color: rgb(255, 255, 255);
             outline: 0;
         }
         QListWidget::item:hover {
@@ -109,17 +109,39 @@ class View(object):
         QListWidget::item:selected {
             background: rgb(87, 115, 122);
         }
+        QScrollBar:vertical {
+            background: white;
+            border: 1px solid #ffffff;
+            margin: 0px 0px 0px 0px;
+            width: 10px;
+        }
+        QScrollBar::handle:vertical {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 rgb(4, 15, 15), stop: 0.5 rgb(4, 15, 15), stop:1 rgb(4, 15, 15));
+            min-height: 0px;
+        }
+        QScrollBar::add-line:vertical {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0 rgb(4, 15, 15), stop: 0.5 rgb(4, 15, 15),  stop:1 rgb(4, 15, 15));
+            height: 0px;
+            subcontrol-origin: margin;
+            subcontrol-position: bottom;
+        }
+        QScrollBar::sub-line:vertical {
+            background: qlineargradient(x1:0, y1:0, x2:1, y2:0, stop: 0  rgb(4, 15, 15), stop: 0.5 rgb(4, 15, 15),  stop:1 rgb(4, 15, 15));
+            height: 0 px;
+            subcontrol-origin: margin;
+            subcontrol-position: top;
+        }
         ''')
         self.mainLayout = QtWidgets.QGridLayout(window)
         self.mainLayout.setObjectName("homeLayout")
         self.stackedWidget = QtWidgets.QStackedWidget(window)
         # self.stackedWidget.setLineWidth(1)
         self.stackedWidget.setObjectName("stackedWidget")
+        # Home Page
         self.homePage = QtWidgets.QWidget()
         self.homePage.setObjectName("homePage")
         self.homeLayout = QtWidgets.QVBoxLayout(self.homePage)
         self.homeLayout.setObjectName("homeLayout")
-        # Home Page
         self.viewAllButton = ClickableLabel(self.homePage)
         self.homeQuitButton = ClickableLabel(self.homePage)
         self.intro = QtWidgets.QLabel(self.homePage)
@@ -131,10 +153,39 @@ class View(object):
         self.setupHomeFooter()
         self.stackedWidget.addWidget(self.homePage)
         # Scrape Page
-        # Input Default Content
+        self.scrapePage = QtWidgets.QWidget()
+        self.scrapePage.setObjectName("scrapePage")
+        self.scrapeLayout = QtWidgets.QVBoxLayout(self.scrapePage)
+        self.scrapeLayout.setObjectName("scrapeLayout")
+        self.scrapeBackButton = ClickableLabel(self.scrapePage)
+        self.scrapeQuitButton = ClickableLabel(self.scrapePage)
+        self.scrapeMessage = QtWidgets.QLabel(self.scrapePage)
+        self.scrapeQuestion = QtWidgets.QLabel(self.scrapePage)
+        self.scrapeYesButton = ClickableLabel(self.scrapePage)
+        self.scrapeNoButton = ClickableLabel(self.scrapePage)
+        self.setupScrapeHeader()
+        self.setupScrapeBody()
+        self.setupScrapeFooter()
+        self.stackedWidget.addWidget(self.scrapePage)
+        # Results Page
+        self.resultsPage = QtWidgets.QWidget()
+        self.resultsPage.setObjectName("resultsPage")
+        self.resultsLayout = QtWidgets.QVBoxLayout(self.resultsPage)
+        self.resultsLayout.setObjectName("resultsLayout")
+        self.resultsBackButton = ClickableLabel(self.resultsPage)
+        self.resultsQuitButton = ClickableLabel(self.resultsPage)
+        self.resultsMessage = QtWidgets.QLabel(self.resultsPage)
+        self.resultsProgressBar = QtWidgets.QProgressBar(self.resultsPage)
+        self.resultsNumber = QtWidgets.QLabel(self.resultsPage)
+        self.resultsList = QtWidgets.QListWidget(self.resultsPage)
+        self.setupResultsHeader()
+        self.setupResultsBody()
+        self.setupResultsFooter()
+        self.stackedWidget.addWidget(self.resultsPage)
+        # Finish Initialization
         self.mainLayout.addWidget(self.stackedWidget)
         self.retranslateView(window)
-        self.stackedWidget.setCurrentIndex(0)
+        self.stackedWidget.setCurrentIndex(2)
 
     def loadFont(self):
         fontDb = QtGui.QFontDatabase()
@@ -163,21 +214,22 @@ class View(object):
         self.searchQuestion.setObjectName("searchQuestion")
         self.homeLayout.addWidget(self.searchQuestion, 0, QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         hLayout = QtWidgets.QHBoxLayout()
-        leftSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
-                                           QtWidgets.QSizePolicy.Fixed)
+        lSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
+                                        QtWidgets.QSizePolicy.Fixed)
         vLayout = QtWidgets.QVBoxLayout()
         self.searchLine.setFont(font)
         self.searchLine.setObjectName("searchLine")
+        self.hLine.setStyleSheet("background-color: rgb(255, 255, 255)")
         self.hLine.setFrameShape(QtWidgets.QFrame.HLine)
         self.hLine.setFrameShadow(QtWidgets.QFrame.Sunken)
         self.hLine.setObjectName("hLine")
         vLayout.addWidget(self.searchLine)
         vLayout.addWidget(self.hLine)
-        rightSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
-                                            QtWidgets.QSizePolicy.Fixed)
-        hLayout.addItem(leftSpacer)
+        rSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
+                                        QtWidgets.QSizePolicy.Fixed)
+        hLayout.addItem(lSpacer)
         hLayout.addLayout(vLayout)
-        hLayout.addItem(rightSpacer)
+        hLayout.addItem(rSpacer)
         self.homeLayout.addLayout(hLayout)
 
     def setupHomeFooter(self):
@@ -186,15 +238,116 @@ class View(object):
         hLayout.addItem(spacer)
         self.homeLayout.addLayout(hLayout)
 
+    def setupScrapeHeader(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        self.scrapeBackButton.setObjectName("scrapeBackButton")
+        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.scrapeQuitButton.setObjectName("scrapeQuitButton")
+        hLayout.addWidget(self.scrapeBackButton, 0, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        hLayout.addItem(spacer)
+        hLayout.addWidget(self.scrapeQuitButton, 0, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+        self.scrapeLayout.addLayout(hLayout)
+
+    def setupScrapeBody(self):
+        font = self.font
+        font.setPointSize(24)
+        vLayout = QtWidgets.QVBoxLayout()
+        self.scrapeMessage.setFont(font)
+        self.scrapeMessage.setObjectName("scrapeMessage")
+        self.scrapeQuestion.setFont(font)
+        self.scrapeQuestion.setObjectName("scrapeQuestion")
+        font.setPointSize(16)
+        hLayout = QtWidgets.QHBoxLayout()
+        self.scrapeYesButton.setFont(font)
+        self.scrapeYesButton.setObjectName("scrapeYesButton")
+        self.scrapeNoButton.setFont(font)
+        self.scrapeNoButton.setObjectName("scrapeNoButton")
+        hLayout.addWidget(self.scrapeYesButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        hLayout.addWidget(self.scrapeNoButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        vLayout.addWidget(self.scrapeMessage, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        vLayout.addWidget(self.scrapeQuestion, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        vLayout.addLayout(hLayout)
+        self.scrapeLayout.addLayout(vLayout)
+
+    def setupScrapeFooter(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        hLayout.addItem(spacer)
+        self.scrapeLayout.addLayout(hLayout)
+
+    def setupResultsHeader(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        self.resultsBackButton.setObjectName("resultsBackButton")
+        spacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.resultsQuitButton.setObjectName("resultsQuitButton")
+        hLayout.addWidget(self.resultsBackButton, 0, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        hLayout.addItem(spacer)
+        hLayout.addWidget(self.resultsQuitButton, 0, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+        self.resultsLayout.addLayout(hLayout)
+
+    def setupResultsBody(self):
+        font = self.font
+        font.setPointSize(24)
+        self.resultsMessage.setFont(font)
+        self.resultsMessage.setObjectName("resultsMessage")
+        self.resultsLayout.addWidget(self.resultsMessage, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        progressBarLayout = QtWidgets.QHBoxLayout()
+        progressLSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.resultsProgressBar.setProperty("value", 0)
+        self.resultsProgressBar.setObjectName("resultsProgressBar")
+        progressRSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        progressBarLayout.addItem(progressLSpacer)
+        progressBarLayout.addWidget(self.resultsProgressBar)
+        progressBarLayout.addItem(progressRSpacer)
+        self.resultsLayout.addLayout(progressBarLayout)
+        font.setPointSize(16)
+        self.resultsNumber.setFont(font)
+        self.resultsNumber.setObjectName("resultsNumber")
+        self.resultsLayout.addWidget(self.resultsNumber, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        listLayout = QtWidgets.QHBoxLayout()
+        listLSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        font.setPointSize(10)
+        self.resultsList.setFont(font)
+        self.resultsList.setObjectName("resultsList")
+        listRSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        listLayout.addItem(listLSpacer)
+        listLayout.addWidget(self.resultsList)
+        listLayout.addItem(listRSpacer)
+        self.resultsLayout.addLayout(listLayout)
+
+    def setupResultsFooter(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        spacer = QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        hLayout.addItem(spacer)
+        self.resultsLayout.addLayout(hLayout)
+
     def retranslateView(self, window):
-        translate = QtCore.QCoreApplication.translate
-        window.setWindowTitle(translate("window", "Sara"))
-        self.viewAllButton.setText(translate(
+        _translate = QtCore.QCoreApplication.translate
+        window.setWindowTitle(_translate("window", "Sara"))
+        self.viewAllButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_2/BookIcon.png\" height=\"30\"/></p></body></html>"))
-        self.homeQuitButton.setText(translate(
+        self.homeQuitButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
-        self.intro.setText(translate("window", "Hi, I\'m Sara"))
-        self.searchQuestion.setText(translate("Form", "What are you looking for ?"))
+        self.intro.setText(_translate("window", "Hi, I\'m Sara"))
+        self.searchQuestion.setText(_translate("Form", "What are you looking for ?"))
+        self.scrapeBackButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
+        self.scrapeQuitButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
+        self.scrapeMessage.setText(_translate("window", "I don\'t think I have that year."))
+        self.scrapeQuestion.setText(_translate("window", "Would you like me to search the interweb ?"))
+        self.scrapeYesButton.setText(_translate("window", "Yes"))
+        self.scrapeNoButton.setText(_translate("window", "No ( Return to Home Page )"))
+        self.resultsBackButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
+        self.resultsQuitButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
+        self.resultsMessage.setText(_translate("window", "Let me see what I can find..."))
+        self.resultsNumber.setText(_translate("window", "Results ( 0 )"))
 
 
 if __name__ == '__main__':
