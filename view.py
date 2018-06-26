@@ -21,7 +21,12 @@ class ClickableLabel(QtWidgets.QLabel):
 class DynamicLineEdit(QtWidgets.QLineEdit):
     def __init__(self, parent=None):
         super(DynamicLineEdit, self).__init__(parent)
-        self.setStyleSheet("color: rgb(255, 255, 255)")
+        self.setStyleSheet('''
+        QLineEdit {
+            border: none;
+            padding: 0px;
+        }
+        ''')
         self.timer = QtCore.QTimer()
         self.suggestions = ["Enter a team", "Enter a description", "Enter a year"]
         self.index = 0
@@ -46,7 +51,6 @@ class SoftwareWidget(QtWidgets.QWidget):
         self.setStyleSheet('''
         QLabel {
             background: transparent;
-            color: rgb(255, 255, 255);
         }
         ''')
         self.vBoxLayout = QtWidgets.QVBoxLayout()
@@ -91,8 +95,14 @@ class View(object):
         }
         QLineEdit {
             background: rgb(4, 15, 15);
-            border: none;
             color: rgb(255, 255, 255);
+            border: 1px solid #ffffff;
+            padding: 10px;
+        }
+        QTextEdit {
+            color: rgb(255, 255, 255);
+            border: 1px solid #ffffff;
+            padding: 10px;
         }
         Line {
             background-color: rgb(255, 255, 255);
@@ -182,10 +192,30 @@ class View(object):
         self.setupResultsBody()
         self.setupResultsFooter()
         self.stackedWidget.addWidget(self.resultsPage)
+        # Add/Edit Page
+        self.addEditPage = QtWidgets.QWidget()
+        self.addEditPage.setObjectName("addEditPage")
+        self.addEditLayout = QtWidgets.QVBoxLayout(self.addEditPage)
+        self.addEditLayout.setObjectName("addEditLayout")
+        self.addEditBackButton = ClickableLabel(self.addEditPage)
+        self.addEditQuitButton = ClickableLabel(self.addEditPage)
+        self.addEditMessage = QtWidgets.QLabel(self.addEditPage)
+        self.teamLabel = QtWidgets.QLabel(self.addEditPage)
+        self.descriptionLabel = QtWidgets.QLabel(self.addEditPage)
+        self.yearLabel = QtWidgets.QLabel(self.addEditPage)
+        self.addEditTeam = QtWidgets.QLineEdit(self.addEditPage)
+        self.addEditDescription = QtWidgets.QTextEdit(self.addEditPage)
+        self.addEditYear = QtWidgets.QLineEdit(self.addEditPage)
+        self.addEditConfirmButton = ClickableLabel(self.addEditPage)
+        self.addEditCancelButton = ClickableLabel(self.addEditPage)
+        self.setupAddEditHeader()
+        self.setupAddEditBody()
+        self.setupAddEditFooter()
+        self.stackedWidget.addWidget(self.addEditPage)
         # Finish Initialization
         self.mainLayout.addWidget(self.stackedWidget)
         self.retranslateView(window)
-        self.stackedWidget.setCurrentIndex(2)
+        self.stackedWidget.setCurrentIndex(3)
 
     def loadFont(self):
         fontDb = QtGui.QFontDatabase()
@@ -325,15 +355,94 @@ class View(object):
         hLayout.addItem(spacer)
         self.resultsLayout.addLayout(hLayout)
 
+    def setupAddEditHeader(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        self.addEditBackButton.setObjectName("addEditBackButton")
+        spacer = QtWidgets.QSpacerItem(20, 100, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.addEditQuitButton.setObjectName("addEditQuitButton")
+        hLayout.addWidget(self.addEditBackButton, 0, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
+        hLayout.addItem(spacer)
+        hLayout.addWidget(self.addEditQuitButton, 0, QtCore.Qt.AlignRight | QtCore.Qt.AlignTop)
+        self.addEditLayout.addLayout(hLayout)
+
+    def setupAddEditBody(self):
+        font = self.font
+        font.setPointSize(24)
+        self.addEditMessage.setFont(font)
+        self.addEditMessage.setObjectName("addEditMessage")
+        self.addEditLayout.addWidget(self.addEditMessage, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        northSpacer = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.addEditLayout.addItem(northSpacer)
+        textEditLayout = QtWidgets.QGridLayout()
+        textEditLSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        textEditLayout.addItem(textEditLSpacer, 0, 0)
+        font.setPointSize(10)
+        self.teamLabel.setFont(font)
+        self.teamLabel.setObjectName("teamLabel")
+        self.descriptionLabel.setFont(font)
+        self.descriptionLabel.setObjectName("descriptionLabel")
+        self.yearLabel.setFont(font)
+        self.yearLabel.setObjectName("yearLabel")
+        textEditLayout.addWidget(self.teamLabel, 0, 1, QtCore.Qt.AlignRight)
+        textEditLayout.addItem(QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed), 1, 1)
+        textEditLayout.addWidget(self.descriptionLabel, 2, 1, QtCore.Qt.AlignRight)
+        textEditLayout.addItem(QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed), 3, 1)
+        textEditLayout.addWidget(self.yearLabel, 4, 1, QtCore.Qt.AlignRight)
+        teamLayout = QtWidgets.QHBoxLayout()
+        self.addEditTeam.setFont(font)
+        self.addEditTeam.setObjectName("addEditTeam")
+        teamSpacer = QtWidgets.QSpacerItem(
+            680, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        teamLayout.addWidget(self.addEditTeam)
+        teamLayout.addItem(teamSpacer)
+        self.addEditDescription.setFont(font)
+        self.addEditDescription.setObjectName("addEditDescription")
+        yearLayout = QtWidgets.QHBoxLayout()
+        self.addEditYear.setFont(font)
+        self.addEditYear.setObjectName("addEditYear")
+        yearSpacer = QtWidgets.QSpacerItem(
+            850, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        yearLayout.addWidget(self.addEditYear)
+        yearLayout.addItem(yearSpacer)
+        textEditLayout.addLayout(teamLayout, 0, 2)
+        textEditLayout.addWidget(self.addEditDescription, 2, 2)
+        textEditLayout.addLayout(yearLayout, 4, 2)
+        textEditRSpacer = QtWidgets.QSpacerItem(
+            40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        textEditLayout.addItem(textEditRSpacer, 0, 3)
+        buttonLayout = QtWidgets.QHBoxLayout()
+        font.setPointSize(16)
+        self.addEditConfirmButton.setFont(font)
+        self.addEditConfirmButton.setObjectName("addEditConfirmButton")
+        self.addEditCancelButton.setFont(font)
+        self.addEditCancelButton.setObjectName("addEditCancelButton")
+        buttonLayout.addWidget(self.addEditConfirmButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        buttonLayout.addWidget(self.addEditCancelButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.addEditLayout.addLayout(textEditLayout)
+        southSpacer = QtWidgets.QSpacerItem(20, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        self.addEditLayout.addItem(southSpacer)
+        self.addEditLayout.addLayout(buttonLayout)
+
+    def setupAddEditFooter(self):
+        hLayout = QtWidgets.QHBoxLayout()
+        spacer = QtWidgets.QSpacerItem(20, 100, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        hLayout.addItem(spacer)
+        self.addEditLayout.addLayout(hLayout)
+
     def retranslateView(self, window):
         _translate = QtCore.QCoreApplication.translate
         window.setWindowTitle(_translate("window", "Sara"))
+        # Home Page
         self.viewAllButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_2/BookIcon.png\" height=\"30\"/></p></body></html>"))
         self.homeQuitButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
         self.intro.setText(_translate("window", "Hi, I\'m Sara"))
         self.searchQuestion.setText(_translate("Form", "What are you looking for ?"))
+        # Scrape Page
         self.scrapeBackButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
         self.scrapeQuitButton.setText(_translate(
@@ -342,12 +451,24 @@ class View(object):
         self.scrapeQuestion.setText(_translate("window", "Would you like me to search the interweb ?"))
         self.scrapeYesButton.setText(_translate("window", "Yes"))
         self.scrapeNoButton.setText(_translate("window", "No ( Return to Home Page )"))
+        # Results Page
         self.resultsBackButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
         self.resultsQuitButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
         self.resultsMessage.setText(_translate("window", "Let me see what I can find..."))
         self.resultsNumber.setText(_translate("window", "Results ( 0 )"))
+        # Add/Edit Page
+        self.addEditBackButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
+        self.addEditQuitButton.setText(_translate(
+            "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
+        self.addEditMessage.setText(_translate("window", "New Entry"))
+        self.teamLabel.setText(_translate("window", "Team    "))
+        self.descriptionLabel.setText(_translate("window", "Description    "))
+        self.yearLabel.setText(_translate("window", "Year    "))
+        self.addEditConfirmButton.setText(_translate("window", "Save"))
+        self.addEditCancelButton.setText(_translate("window", "Cancel"))
 
 
 if __name__ == '__main__':
