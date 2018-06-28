@@ -53,6 +53,7 @@ class SoftwareWidget(QtWidgets.QWidget):
             background: transparent;
         }
         ''')
+        self.hBoxLayout = QtWidgets.QHBoxLayout()
         self.vBoxLayout = QtWidgets.QVBoxLayout()
         font.setPointSize(10)
         font.setBold(True)
@@ -145,7 +146,6 @@ class View(object):
         self.mainLayout = QtWidgets.QGridLayout(window)
         self.mainLayout.setObjectName("homeLayout")
         self.stackedWidget = QtWidgets.QStackedWidget(window)
-        # self.stackedWidget.setLineWidth(1)
         self.stackedWidget.setObjectName("stackedWidget")
         # Home Page
         self.homePage = QtWidgets.QWidget()
@@ -187,7 +187,10 @@ class View(object):
         self.resultsMessage = QtWidgets.QLabel(self.resultsPage)
         self.resultsProgressBar = QtWidgets.QProgressBar(self.resultsPage)
         self.resultsNumber = QtWidgets.QLabel(self.resultsPage)
+        self.resultsCounter = 0
         self.resultsList = QtWidgets.QListWidget(self.resultsPage)
+        self.resultsAddButton = ClickableLabel(self.resultsPage)
+        self.resultsEditButton = ClickableLabel(self.resultsPage)
         self.setupResultsHeader()
         self.setupResultsBody()
         self.setupResultsFooter()
@@ -215,7 +218,7 @@ class View(object):
         # Finish Initialization
         self.mainLayout.addWidget(self.stackedWidget)
         self.retranslateView(window)
-        self.stackedWidget.setCurrentIndex(3)
+        self.stackedWidget.setCurrentIndex(0)
 
     def loadFont(self):
         fontDb = QtGui.QFontDatabase()
@@ -348,6 +351,19 @@ class View(object):
         listLayout.addWidget(self.resultsList)
         listLayout.addItem(listRSpacer)
         self.resultsLayout.addLayout(listLayout)
+        buttonLayout = QtWidgets.QHBoxLayout()
+        font.setPointSize(16)
+        self.resultsAddButton.setFont(font)
+        self.resultsAddButton.setObjectName("resultsAddButton")
+        self.resultsAddButton.hide()
+        self.resultsEditButton.setFont(font)
+        self.resultsEditButton.setObjectName("resultsEditButton")
+        self.resultsEditButton.hide()
+        buttonLayout.addWidget(self.resultsAddButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        buttonLayout.addWidget(self.resultsEditButton, 0, QtCore.Qt.AlignHCenter | QtCore.Qt.AlignVCenter)
+        self.resultsLayout.addItem(
+            QtWidgets.QSpacerItem(20, 40, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed))
+        self.resultsLayout.addLayout(buttonLayout)
 
     def setupResultsFooter(self):
         hLayout = QtWidgets.QHBoxLayout()
@@ -458,6 +474,8 @@ class View(object):
             "window", "<html><head/><body><p><img src=\":/Image_1/CloseIcon.png\" height=\"30\"/></p></body></html>"))
         self.resultsMessage.setText(_translate("window", "Let me see what I can find..."))
         self.resultsNumber.setText(_translate("window", "Results ( 0 )"))
+        self.resultsAddButton.setText(_translate("window", "Add"))
+        self.resultsEditButton.setText(_translate("window", "Edit"))
         # Add/Edit Page
         self.addEditBackButton.setText(_translate(
             "window", "<html><head/><body><p><img src=\":/Image_3/BackIcon.png\" height=\"30\"/></p></body></html>"))
@@ -469,6 +487,16 @@ class View(object):
         self.yearLabel.setText(_translate("window", "Year    "))
         self.addEditConfirmButton.setText(_translate("window", "Save"))
         self.addEditCancelButton.setText(_translate("window", "Cancel"))
+
+    def addSoftware(self, software):
+        softwareWidget = SoftwareWidget(self.font)
+        softwareWidget.setTeam(software.team)
+        softwareWidget.setDescription(software.description)
+        softwareWidget.setYear(str(software.year))
+        softwareItem = QtWidgets.QListWidgetItem(self.resultsList)
+        softwareItem.setSizeHint(softwareWidget.sizeHint())
+        self.resultsList.addItem(softwareItem)
+        self.resultsList.setItemWidget(softwareItem, softwareWidget)
 
 
 if __name__ == '__main__':
