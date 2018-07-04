@@ -5,7 +5,7 @@ import sys
 from PyQt5 import QtCore, QtWidgets
 
 import view
-from scraper import Parser
+from scraper import Scraper
 from software import Software
 from summarizer import Summarizer
 
@@ -18,22 +18,18 @@ class ScrapeThread(QtCore.QThread):
     def __init__(self, year):
         QtCore.QThread.__init__(self)
         self.year = year
-        self.parser = Parser()
-        self.summarizer = Summarizer()
-
-    def __del__(self):
-        self.wait()
+        self.scraper = Scraper()
 
     def getData(self):
-        teamInfo = self.parser.getData(self.year, self.progress)
+        teamInfo = self.scraper.getData(self.year, self.progress)
         teamsWithSoftware = 0
         for i in range(len(teamInfo)):
-            result = self.summarizer.summarize(teamInfo[i][1])
-            if result['Success'] and len(result['TopNDescription']) > 0:
-                teamInfo[i][1] = result['TopNDescription']
-                teamsWithSoftware += 1
-            else:
-                teamInfo[i][1] = 'Unable to retrieve ' + teamInfo[i][0] + ' software.'
+            # result = self.summarizer.summarize(teamInfo[i][1])
+            # if result['Success'] and len(result['TopNDescription']) > 0:
+            #     teamInfo[i][1] = result['TopNDescription']
+            #     teamsWithSoftware += 1
+            # else:
+            #     teamInfo[i][1] = 'Unable to retrieve ' + teamInfo[i][0] + ' software.'
             software = Software(teamInfo[i][0], teamInfo[i][1], self.year)
             self.result.emit(software)
             self.progress.emit(50 / len(teamInfo))
