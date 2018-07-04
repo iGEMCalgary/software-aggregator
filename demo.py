@@ -89,6 +89,7 @@ class Ui(QtWidgets.QWidget, view.View):
                 self.addSoftware(software)
                 self.resultsCounter += 1
                 self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
+        self.resultsList.verticalScrollBar().setSliderPosition(0)
         self.stackedWidget.setCurrentIndex(2)
 
     def startSearching(self):
@@ -110,6 +111,7 @@ class Ui(QtWidgets.QWidget, view.View):
                         self.addSoftware(software)
                         self.resultsCounter += 1
                         self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
+            self.resultsList.verticalScrollBar().setSliderPosition(0)
             self.stackedWidget.setCurrentIndex(2)
 
     def back(self):
