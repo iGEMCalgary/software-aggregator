@@ -247,7 +247,7 @@ class View(object):
         self.searchQuestion.setObjectName("searchQuestion")
         self.homeLayout.addWidget(self.searchQuestion, 0, QtCore.Qt.AlignCenter | QtCore.Qt.AlignVCenter)
         hLayout = QtWidgets.QHBoxLayout()
-        lSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
+        lSpacer = QtWidgets.QSpacerItem(340, 20, QtWidgets.QSizePolicy.Minimum,
                                         QtWidgets.QSizePolicy.Fixed)
         vLayout = QtWidgets.QVBoxLayout()
         self.searchLine.setFont(font)
@@ -258,7 +258,7 @@ class View(object):
         self.hLine.setObjectName("hLine")
         vLayout.addWidget(self.searchLine)
         vLayout.addWidget(self.hLine)
-        rSpacer = QtWidgets.QSpacerItem(360, 20, QtWidgets.QSizePolicy.Minimum,
+        rSpacer = QtWidgets.QSpacerItem(340, 20, QtWidgets.QSizePolicy.Minimum,
                                         QtWidgets.QSizePolicy.Fixed)
         hLayout.addItem(lSpacer)
         hLayout.addLayout(vLayout)
