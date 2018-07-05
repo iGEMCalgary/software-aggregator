@@ -24,12 +24,12 @@ class ScrapeThread(QtCore.QThread):
         teamInfo = self.scraper.getData(self.year, self.progress)
         teamsWithSoftware = 0
         for i in range(len(teamInfo)):
-            # result = self.summarizer.summarize(teamInfo[i][1])
-            # if result['Success'] and len(result['TopNDescription']) > 0:
-            #     teamInfo[i][1] = result['TopNDescription']
-            #     teamsWithSoftware += 1
-            # else:
-            #     teamInfo[i][1] = 'Unable to retrieve ' + teamInfo[i][0] + ' software.'
+            result = self.summarizer.summarize(teamInfo[i][1])
+            if result['Success'] and len(result['TopNDescription']) > 0:
+                teamInfo[i][1] = result['TopNDescription']
+                teamsWithSoftware += 1
+            else:
+                teamInfo[i][1] = 'Unable to retrieve ' + teamInfo[i][0] + ' software.'
             software = Software(teamInfo[i][0], teamInfo[i][1], self.year)
             self.result.emit(software)
             self.progress.emit(50 / len(teamInfo))
