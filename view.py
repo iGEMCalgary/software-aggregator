@@ -345,6 +345,7 @@ class View(object):
         font.setPointSize(10)
         self.resultsList.setFont(font)
         self.resultsList.setObjectName("resultsList")
+        self.resultsList.setVerticalScrollMode(QtWidgets.QAbstractItemView.ScrollPerPixel)
         listRSpacer = QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         listLayout.addItem(listLSpacer)
