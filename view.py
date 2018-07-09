@@ -229,7 +229,7 @@ class View(object):
     def setupHomeHeader(self):
         hLayout = QtWidgets.QHBoxLayout()
         self.viewAllButton.setObjectName("viewAllButton")
-        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         self.homeQuitButton.setObjectName("homeQuitButton")
         hLayout.addWidget(self.viewAllButton, 0, QtCore.Qt.AlignLeft | QtCore.Qt.AlignTop)
         hLayout.addItem(spacer)
@@ -250,6 +250,7 @@ class View(object):
         lSpacer = QtWidgets.QSpacerItem(340, 20, QtWidgets.QSizePolicy.Minimum,
                                         QtWidgets.QSizePolicy.Fixed)
         vLayout = QtWidgets.QVBoxLayout()
+        self.searchLine.setFixedWidth(560)
         self.searchLine.setFont(font)
         self.searchLine.setObjectName("searchLine")
         self.hLine.setStyleSheet("background-color: rgb(255, 255, 255)")
@@ -267,7 +268,7 @@ class View(object):
 
     def setupHomeFooter(self):
         hLayout = QtWidgets.QHBoxLayout()
-        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
+        spacer = QtWidgets.QSpacerItem(20, 200, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Expanding)
         hLayout.addItem(spacer)
         self.homeLayout.addLayout(hLayout)
 
@@ -409,24 +410,20 @@ class View(object):
             40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed), 3, 1)
         textEditLayout.addWidget(self.yearLabel, 4, 1, QtCore.Qt.AlignRight)
         teamLayout = QtWidgets.QHBoxLayout()
+        self.addEditTeam.setFixedWidth(400)
         self.addEditTeam.setFont(font)
         self.addEditTeam.setObjectName("addEditTeam")
-        teamSpacer = QtWidgets.QSpacerItem(
-            680, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         teamLayout.addWidget(self.addEditTeam)
-        teamLayout.addItem(teamSpacer)
         self.addEditDescription.setFont(font)
         self.addEditDescription.setObjectName("addEditDescription")
         yearLayout = QtWidgets.QHBoxLayout()
+        self.addEditYear.setFixedWidth(100)
         self.addEditYear.setFont(font)
         self.addEditYear.setObjectName("addEditYear")
-        yearSpacer = QtWidgets.QSpacerItem(
-            850, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         yearLayout.addWidget(self.addEditYear)
-        yearLayout.addItem(yearSpacer)
-        textEditLayout.addLayout(teamLayout, 0, 2)
+        textEditLayout.addLayout(teamLayout, 0, 2, QtCore.Qt.AlignLeft)
         textEditLayout.addWidget(self.addEditDescription, 2, 2)
-        textEditLayout.addLayout(yearLayout, 4, 2)
+        textEditLayout.addLayout(yearLayout, 4, 2, QtCore.Qt.AlignLeft)
         textEditRSpacer = QtWidgets.QSpacerItem(
             40, 20, QtWidgets.QSizePolicy.Minimum, QtWidgets.QSizePolicy.Fixed)
         textEditLayout.addItem(textEditRSpacer, 0, 3)

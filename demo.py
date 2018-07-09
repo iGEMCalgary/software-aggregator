@@ -49,7 +49,7 @@ class Ui(QtWidgets.QWidget, view.View):
         QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
         self.conn = conn
-        self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
+        # self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.viewAllButton.clicked.connect(self.viewAll)
         self.homeQuitButton.clicked.connect(self.close)
         self.searchLine.returnPressed.connect(self.startSearching)
