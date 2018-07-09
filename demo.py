@@ -1,11 +1,13 @@
 import csv
 import datetime
 import sys
+import sqlite3
+import random
 
 from PyQt5 import QtCore, QtWidgets
 
 import view
-from scraper import Scraper
+from scraper import Parser
 from software import Software
 from summarizer import Summarizer
 
@@ -18,10 +20,14 @@ class ScrapeThread(QtCore.QThread):
     def __init__(self, year):
         QtCore.QThread.__init__(self)
         self.year = year
-        self.scraper = Scraper()
+        self.parser = Parser()
+        self.summarizer = Summarizer()
+
+    def __del__(self):
+        self.wait()
 
     def getData(self):
-        teamInfo = self.scraper.getData(self.year, self.progress)
+        teamInfo = self.parser.getData(self.year, self.progress)
         teamsWithSoftware = 0
         for i in range(len(teamInfo)):
             result = self.summarizer.summarize(teamInfo[i][1])
@@ -40,9 +46,10 @@ class ScrapeThread(QtCore.QThread):
 
 
 class Ui(QtWidgets.QWidget, view.View):
-    def __init__(self, parent=None):
+    def __init__(self, conn, parent=None):
         QtWidgets.QWidget.__init__(self, parent)
         self.setupUi(self)
+        self.conn = conn
         self.setWindowFlags(QtCore.Qt.FramelessWindowHint)
         self.viewAllButton.clicked.connect(self.viewAll)
         self.homeQuitButton.clicked.connect(self.close)
@@ -78,13 +85,13 @@ class Ui(QtWidgets.QWidget, view.View):
         self.resultsEditButton.show()
         self.resultsMessage.setText("All Software")
         self.resultsList.clear()
-        with open('software.csv', 'r', encoding='utf-8') as csvFile:
-            csvReader = csv.reader(csvFile)
-            for line in csvReader:
-                software = Software(line[0], line[1], line[2])
-                self.addSoftware(software)
-                self.resultsCounter += 1
-                self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM software")
+        for i in c.fetchall():
+            software = Software(i[0], i[1], i[2])
+            self.addSoftware(software)
+            self.resultsCounter += 1
+            self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
         self.resultsList.verticalScrollBar().setSliderPosition(0)
         self.stackedWidget.setCurrentIndex(2)
 
@@ -99,14 +106,13 @@ class Ui(QtWidgets.QWidget, view.View):
         else:
             self.resultsCounter = 0
             self.resultsMessage.setText("Software from " + str(self.year))
-            with open('software.csv', 'r', encoding='utf-8') as csvFile:
-                csvReader = csv.reader(csvFile)
-                for line in csvReader:
-                    if int(line[2]) == self.year:
-                        software = Software(line[0], line[1], line[2])
-                        self.addSoftware(software)
-                        self.resultsCounter += 1
-                        self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
+            c = self.conn.cursor()
+            c.execute("SELECT * FROM software WHERE year = :year", {'year': self.year})
+            for i in c.fetchall():
+                software = Software(i[0], i[1], i[2])
+                self.addSoftware(software)
+                self.resultsCounter += 1
+                self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
             self.resultsList.verticalScrollBar().setSliderPosition(0)
             self.stackedWidget.setCurrentIndex(2)
 
@@ -136,33 +142,36 @@ class Ui(QtWidgets.QWidget, view.View):
         self.resultsProgressBar.setValue(self.resultsProgressBar.value() + val)
 
     def inDb(self):
-        with open('software.csv', 'r', encoding='utf-8') as csvFile:
-            csvReader = csv.reader(csvFile)
-            for line in csvReader:
-                if int(line[2]) == self.year:
-                    return True
+        c = self.conn.cursor()
+        c.execute("SELECT * FROM software WHERE year = :year", {'year': self.year})
+        if c.fetchone() is not None:
+            return True
 
     def populate(self, software):
         self.addSoftware(software)
         self.resultsCounter += 1
         self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
-        with open('software.csv', 'a', encoding='utf-8') as csvFile:
-            csvWriter = csv.writer(csvFile, delimiter=',', lineterminator='\n')
-            csvWriter.writerow([software.team, "" + software.description + "", str(software.year)])
+        c = self.conn.cursor()
+        c.execute("INSERT INTO software VALUES (:team, :description, :year)",
+                  {'team': software.team, 'description': software.description, 'year': software.year})
+        self.conn.commit()
 
     def refreshList(self):
         self.resultsList.clear()
-        with open('software.csv', 'r', encoding='utf-8') as csvFile:
-            csvReader = csv.reader(csvFile)
-            if self.searchedAYear:
-                for line in csvReader:
-                    if int(line[2]) == self.year:
-                        software = Software(line[0], line[1], line[2])
-                        self.addSoftware(software)
-            else:
-                for line in csvReader:
-                    software = Software(line[0], line[1], line[2])
-                    self.addSoftware(software)
+        c = self.conn.cursor()
+        if self.searchedAYear:
+            # for line in csvReader:
+            #     if int(line[2]) == self.year:
+            #         software = Software(line[0], line[1], line[2])
+            #         self.addSoftware(software)
+            c.execute("SELECT * FROM software WHERE year = :year", {'year': self.year})
+        else:
+            c.execute("SELECT * FROM software")
+        for i in c.fetchall():
+            software = Software(i[0], i[1], i[2])
+            self.addSoftware(software)
+            self.resultsCounter += 1
+            self.resultsNumber.setText("Results ( " + str(self.resultsCounter) + " )")
 
     def reset(self):
         self.resultsProgressBar.setValue(0)
@@ -209,16 +218,11 @@ class Ui(QtWidgets.QWidget, view.View):
             software = Software(self.addEditTeam.text(), self.addEditDescription.toPlainText(), self.addEditYear.text())
             self.populate(software)
         else:
-            with open('software.csv', 'r', encoding='utf-8') as csvFile:
-                csvReader = csv.reader(csvFile)
-                lines = list(csvReader)
-                for line in lines:
-                    if self.addEditTeam.text() in line and self.addEditYear.text() in line:
-                        line[1] = self.addEditDescription.toPlainText()
-                        break
-                with open('software.csv', 'w', encoding='utf-8') as csvFile:
-                    csvWriter = csv.writer(csvFile, delimiter=',', lineterminator='\n')
-                    csvWriter.writerows(lines)
+            c = self.conn.cursor()
+            c.execute("UPDATE software SET description = :description WHERE team = :team AND year = :year",
+                      {'team': self.addEditTeam.text(), 'description': self.addEditDescription.toPlainText(),
+                       'year': int(self.addEditYear.text())})
+            self.conn.commit()
             self.refreshList()
         self.resultsList.setStyleSheet("outline: 0")
         self.stackedWidget.setCurrentIndex(2)
@@ -230,10 +234,47 @@ class Ui(QtWidgets.QWidget, view.View):
 
 
 def main():
+    conn = sqlite3.connect('software.db')
+    # c.execute("""CREATE TABLE software (
+    #             team text,
+    #             description text,
+    #             year integer
+    #             )""")
+    # c.execute("INSERT INTO software VALUES ('Rainer', 'Lim', 10)")
+    # software = Software("John", "Doe", 11)
+    # c.execute("INSERT INTO software VALUES (:team, :description, :year)",
+    #           {'team': software.team, 'description': software.description, 'year': software.year})
+    # conn.commit()
+    # c.execute("SELECT * FROM software WHERE description=:description",
+    #           {'description': 'Doe'})
+    # print(c.fetchone())
+    # conn.commit()
+    # conn.close()
+
+    # conn.execute('''
+    # CREATE TABLE SOFTWARE
+    # (ID INT PRIMARY KEY NOT NULL,
+    # TEAM TEXT NOT NULL,
+    # DESCRIPTION TEXT NOT NULL,
+    # YEAR INT NOT NULL);
+    # ''')
+    # print("Table created")
     app = QtWidgets.QApplication(sys.argv)
-    ui = Ui()
+    ui = Ui(conn)
     ui.show()
     sys.exit(app.exec_())
+    # conn.close()
+    # c = conn.cursor()
+    # c.execute("SELECT * FROM software WHERE year=:year", {'year': 2008})
+    # print(c.fetchall())
+    # conn.commit()
+    # conn.close()
+    # cursor = conn.execute("SELECT * FROM SOFTWARE WHERE ID=1 LIMIT 1")
+    # for row in cursor:
+    #     print("ID = ", row[0])
+    #     print("TEAM = ", row[1])
+    #     print("DESCRIPTION = ", row[2])
+    #     print("YEAR = ", row[3])
 
 
 if __name__ == '__main__':

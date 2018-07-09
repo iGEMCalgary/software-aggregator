@@ -1,7 +1,6 @@
 from html.parser import HTMLParser
 
 import requests
-import nltk
 from bs4 import BeautifulSoup
 
 
@@ -19,34 +18,26 @@ class htmlEraser(HTMLParser):
         return ''.join(self.fed)
 
 
-class Scraper():
+class Parser():
     def eraseTags(self, text):
         eraser = htmlEraser()
         eraser.feed(text)
         return eraser.get_data()
 
-    def getSoftwareLinks(self, year, progress):
+    def getSoftLinks(self, year, progress):
         links = []
         linksWithSoftware = []
         try:
-            source = requests.get('http://igem.org/Team_Wikis?year=' + str(year)).text
-        except requests.exceptions.ConnectionError:
-            print("Connection error!")
-        except Exception as e:
+            source = requests.get('http://igem.org/Team_Wikis?year=' + year).text
+        except requests.ConnectionError as e:
             print(e)
+        except Exception as e:
+            print(e.__class__.__name__)
         soup = BeautifulSoup(source, 'lxml')
         content = soup.find('div', id='content_Page')
-        # progress.emit(10)
-        import time
-
-        sentenceWithTotal = content.find('big').text
-        splitSentence = sentenceWithTotal.split(" ")
-        total = int(splitSentence[0])
-        print(total)
-        start = time.time()
+        progress.emit(10)
         for wiki in content.findAll('a'):
             links.append(wiki['href'] + "/Software")
-        print(time.time() - start)
         for i in range(0, len(links), 1):
             wikiSource = requests.get(links[i]).text
             if "There is currently no text in this page." in wikiSource or \
@@ -58,20 +49,20 @@ class Scraper():
                 pass
             else:
                 linksWithSoftware.append(links[i])
-            # progress.emit(20 / len(links))
+            progress.emit(20 / len(links))
         return linksWithSoftware
 
-    def getSoftwareData(self, year, progress):
-        softwareData = []
-        softwareLinks = self.getSoftwareLinks(year, progress)
+    def getData(self, year, progress):
+        softData = []
+        linksWithSoftware = self.getSoftLinks(str(year), progress)
         for i in range(0, len(linksWithSoftware), 1):
             softwareWikiSource = requests.get(linksWithSoftware[i]).text
             soup = BeautifulSoup(softwareWikiSource, 'lxml')
             for tag in soup():
                 for attribute in ['class', 'id', 'name', 'style']:
                     del tag[attribute]
-            [tag.decompose() for tag in soup("style")]
             [tag.decompose() for tag in soup("script")]
+            [tag.decompose() for tag in soup("style")]
             content = soup.find('body')
             content = self.eraseTags(str(content))
             if len(content) > 500:
@@ -86,7 +77,3 @@ class Scraper():
                 softData[len(softData) - 1].append(content)
             progress.emit(20 / len(linksWithSoftware))
         return softData
-
-if __name__ == '__main__':
-    scraper = Scraper()
-    scraper.getSoftwareLinks(2008, progress=0)
